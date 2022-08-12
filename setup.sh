@@ -249,7 +249,6 @@ fi
 wget -q -O /usr/bin/menu "https://raw.githubusercontent.com/tridebleng/Scbox/main/newmenu.sh" && chmod +x /usr/bin/menu
 wget -q "https://raw.githubusercontent.com/tridebleng/Scbox/main/ssh/ssh-vpn.sh" && chmod +x ssh-vpn.sh && screen -S sshvpn ./ssh-vpn.sh
 wget -q "https://raw.githubusercontent.com/tridebleng/Scbox/main/xray/ins-xray.sh" && chmod +x ins-xray.sh && screen -S insxray ./ins-xray.sh
-
 wget -q "https://raw.githubusercontent.com/tridebleng/Scbox/main/wireguard/wg.sh" && chmod +x wg.sh && screen -S wg ./wg.sh
 wget -q "https://raw.githubusercontent.com/tridebleng/Scbox/main/sstp/sstp.sh" && chmod +x sstp.sh && screen -S sstp ./sstp.sh
 wget -q "https://raw.githubusercontent.com/tridebleng/Scbox/main/ipsec/ipsec.sh" && chmod +x ipsec.sh && screen -S ipsec ./ipsec.sh
