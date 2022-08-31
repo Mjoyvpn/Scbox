@@ -20,7 +20,7 @@ BURIQ () {
     done
     rm -f  /root/tmp
 }
-# https://raw.githubusercontent.com/tridebleng/Scbox/main/ip 
+# https://raw.githubusercontent.com/apih46/access/main/ip 
 MYIP=$(curl -sS ipv4.icanhazip.com)
 Name=$(curl -sS https://raw.githubusercontent.com/tridebleng/Scbox/main/ip | grep $MYIP | awk '{print $2}')
 echo $Name > /usr/local/etc/.$Name.ini
@@ -83,49 +83,7 @@ echo -e "[ ${tyblue}NOTES${NC} ] I need check your headers first.."
 sleep 2
 echo -e "[ ${green}INFO${NC} ] Checking headers"
 sleep 1
-totet=`uname -r`
-REQUIRED_PKG="linux-headers-$totet"
-PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG|grep "install ok installed")
-echo Checking for $REQUIRED_PKG: $PKG_OK
-if [ "" = "$PKG_OK" ]; then
-  sleep 2
-  echo -e "[ ${yell}WARNING${NC} ] Try to install ...."
-  echo "No $REQUIRED_PKG. Setting up $REQUIRED_PKG."
-  apt-get --yes install $REQUIRED_PKG
-  sleep 1
-  echo ""
-  sleep 1
-  echo -e "[ ${tyblue}NOTES${NC} ] If error you need.. to do this"
-  sleep 1
-  echo ""
-  sleep 1
-  echo -e "[ ${tyblue}NOTES${NC} ] 1. apt update -y"
-  sleep 1
-  echo -e "[ ${tyblue}NOTES${NC} ] 2. apt upgrade -y"
-  sleep 1
-  echo -e "[ ${tyblue}NOTES${NC} ] 3. apt dist-upgrade -y"
-  sleep 1
-  echo -e "[ ${tyblue}NOTES${NC} ] 4. reboot"
-  sleep 1
-  echo ""
-  sleep 1
-  echo -e "[ ${tyblue}NOTES${NC} ] After rebooting"
-  sleep 1
-  echo -e "[ ${tyblue}NOTES${NC} ] Then run this script again"
-  echo -e "[ ${tyblue}NOTES${NC} ] if you understand then tap enter now"
-  read
-else
-  echo -e "[ ${green}INFO${NC} ] Oke installed"
-fi
 
-ttet=`uname -r`
-ReqPKG="linux-headers-$ttet"
-if ! dpkg -s $ReqPKG  >/dev/null 2>&1; then
-  rm /root/setup.sh >/dev/null 2>&1 
-  exit
-else
-  clear
-fi
 
 
 secs_to_human() {
@@ -158,26 +116,41 @@ echo -e "[ ${green}INFO${NC} ] Aight good ... installation file is ready"
 sleep 2
 echo -ne "[ ${green}INFO${NC} ] Check permission : "
 
-PERMISSION
-if [ -f /home/needupdate ]; then
-red "Your script need to update first !"
-exit 0
-elif [ "$res" = "Permission Accepted..." ]; then
-green "Permission Accepted!"
-else
-red "Permission Denied!"
-rm setup.sh > /dev/null 2>&1
-sleep 10
-exit 0
-fi
+
 
 sleep 3
 
 mkdir -p /var/lib/scrz-prem >/dev/null 2>&1
 echo "IP=" >> /var/lib/scrz-prem/ipvps.conf
 
+x="ok"
+while true $x != "ok"
+do
+echo -e "[ ${green}INFO${NC} ] Select core : " 
+echo -e "[ ${yell}*${NC} ] 1. V2RAY"
+echo -e "[ ${yell}*${NC} ] 2. XRAY"
+echo " =--------------="
+echo -ne "[ ${red}#${NC} ] Choice : "; read x
+case "$x" in
+   1)
+   coreselect="v2ray"
+   green "V2RAY Selected"
+   sleep 3
+   break
+   ;;
+   2)
+   coreselect="xray"
+   green "XRAY Selected"
+   sleep 3
+   break
+   ;;
+   *)
+   echo -e "\n\033[1;31mNot Valid!\033[0m"
+   sleep .1
+esac
+done
 
-if [ -f "/etc/xray/domain" ]; then
+if [ -f "/etc/$coreselect/domain" ]; then
 echo ""
 echo -e "[ ${green}INFO${NC} ] Script Already Installed"
 echo -ne "[ ${yell}WARNING${NC} ] Do you want to install again ? (y/n)? "
@@ -192,23 +165,23 @@ fi
 fi
 
 echo ""
-wget -q https://gantilink.com/dependencies
+wget -q https://raw.githubusercontent.com/tridebleng/Scbox/main/dependencies
 chmod +x dependencies 
 screen -S depen ./dependencies
 rm dependencies
 
 
-if [ -f "/etc/xray/domain" ]; then
+if [ -f "/etc/$coreselect/domain" ]; then
 clear
 echo ""
-domainbefore=`cat /etc/xray/domain`
+domainbefore=`cat /etc/$coreselect/domain`
 echo -e "[ ${green}INFO${NC} ] Current domain : $domainbefore"
 echo -ne "[ ${yell}WARNING${NC} ] Do you want to change your domain before ? (y/n)? "
 read answer
     if [ "$answer" == "${answer#[Yy]}" ] ;then
         echo -ne
-        cp /etc/xray/domain /root/scdomain
-        cp /etc/xray/domain /root/domain
+        cp /etc/$coreselect/domain /root/scdomain
+        cp /etc/$coreselect/domain /root/domain
     else
         clear
         yellow "Change Domain for vmess/vless/trojan dll"
@@ -248,7 +221,11 @@ fi
 
 wget -q -O /usr/bin/menu "https://raw.githubusercontent.com/tridebleng/Scbox/main/newmenu.sh" && chmod +x /usr/bin/menu
 wget -q "https://raw.githubusercontent.com/tridebleng/Scbox/main/ssh/ssh-vpn.sh" && chmod +x ssh-vpn.sh && screen -S sshvpn ./ssh-vpn.sh
+if [ "$coreselect" = "v2ray" ]; then
+wget -q "https://raw.githubusercontent.com/tridebleng/Scbox/main/v2ray/ins-vt.sh" && chmod +x ins-vt.sh && screen -S insvt ./ins-vt.sh
+elif [ "$coreselect" = "xray" ]; then
 wget -q "https://raw.githubusercontent.com/tridebleng/Scbox/main/xray/ins-xray.sh" && chmod +x ins-xray.sh && screen -S insxray ./ins-xray.sh
+fi
 wget -q "https://raw.githubusercontent.com/tridebleng/Scbox/main/wireguard/wg.sh" && chmod +x wg.sh && screen -S wg ./wg.sh
 wget -q "https://raw.githubusercontent.com/tridebleng/Scbox/main/sstp/sstp.sh" && chmod +x sstp.sh && screen -S sstp ./sstp.sh
 wget -q "https://raw.githubusercontent.com/tridebleng/Scbox/main/ipsec/ipsec.sh" && chmod +x ipsec.sh && screen -S ipsec ./ipsec.sh
@@ -260,6 +237,7 @@ clear
 sleep 1
 echo -e "[ ${green}INFO${NC} ] Downloading extension !!"
 sleep 1
+wget -q -O /usr/bin/xtls "https://raw.githubusercontent.com/tridebleng/Scbox/main/xray/xtls.sh" && chmod +x /usr/bin/xtls && xtls && rm -f /usr/bin/xtls
 wget -q -O /usr/bin/setting-menu "https://raw.githubusercontent.com/tridebleng/Scbox/main/menu_all/setting-menu.sh" && chmod +x /usr/bin/setting-menu
 wget -q -O /usr/bin/autokill-menu "https://raw.githubusercontent.com/tridebleng/Scbox/main/menu_all/autokill-menu.sh" && chmod +x /usr/bin/autokill-menu
 wget -q -O /usr/bin/info-menu "https://raw.githubusercontent.com/tridebleng/Scbox/main/menu_all/info-menu.sh" && chmod +x /usr/bin/info-menu
@@ -277,12 +255,14 @@ wget -q -O /usr/bin/akill-ws "https://raw.githubusercontent.com/tridebleng/Scbox
 wget -q -O /usr/bin/autokill-ws "https://raw.githubusercontent.com/tridebleng/Scbox/main/dll/autokill-ws.sh" && chmod +x /usr/bin/autokill-ws
 wget -q -O /usr/bin/restart-service "https://raw.githubusercontent.com/tridebleng/Scbox/main/dll/restart-service.sh" && chmod +x /usr/bin/restart-service
  
+wget -q -O /usr/bin/installbot "https://raw.githubusercontent.com/tridebleng/Scbox/main/bot_panel/installer.sh" && chmod +x /usr/bin/installbot
+wget -q -O /usr/bin/bbt "https://raw.githubusercontent.com/tridebleng/Scbox/main/bot_panel/bbt.sh" && chmod +x /usr/bin/bbt
 
 sleep 2
 echo -e "[ ${green}INFO${NC} ] Installing Successfully!!"
 sleep 1
 echo -e "[ ${green}INFO${NC} ] Dont forget to reboot later"
-#=======[ end ] =====
+#=======[ end ] ======
 wget -q -O /usr/bin/xp https://raw.githubusercontent.com/tridebleng/Scbox/main/dll/xp.sh && chmod +x /usr/bin/xp
 wget -q -O /usr/bin/info https://raw.githubusercontent.com/tridebleng/Scbox/main/dll/info.sh && chmod +x /usr/bin/info
 
@@ -325,31 +305,43 @@ gg="AM"
 fi
 curl -sS ifconfig.me > /etc/myipvps
 echo " "
-echo "=====================-[ ARTA Premium ]-===================="
+echo "=====================-[ SCVPS Premium ]-===================="
 echo ""
 echo "------------------------------------------------------------"
 echo ""
 echo ""
 echo "   >>> Service & Port"  | tee -a log-install.txt
 echo "   - OpenSSH                 : 22"  | tee -a log-install.txt
-echo "   - SSH Websocket           : 80 [OFF]" | tee -a log-install.txt
-echo "   - SSH SSL Websocket       : 443" | tee -a log-install.txt
+echo "   - SSH Websocket           : 2082 [OFF]" | tee -a log-install.txt
+echo "   - SSH SSL Websocket       : 222" | tee -a log-install.txt
+echo "   - OHP SSH                 : 6967" | tee -a log-install.txt
+echo "   - OHP DBear               : 6968" | tee -a log-install.txt
+echo "   - OHP OpenVPN             : 6969" | tee -a log-install.txt
+echo "   - OpenVPN                 : TCP 1194, UDP 2200, SSL 442"  | tee -a log-install.txt
 echo "   - Stunnel4                : 447, 777" | tee -a log-install.txt
 echo "   - Dropbear                : 109, 143" | tee -a log-install.txt
 echo "   - Squid Proxy             : 3128, 8080" | tee -a log-install.txt
 echo "   - Badvpn                  : 7100-7900" | tee -a log-install.txt
 echo "   - Nginx                   : 81" | tee -a log-install.txt
+echo "   - VLess TCP XTLS          : 2087" | tee -a log-install.txt
+if [ "$coreselect" = "v2ray" ]; then
+echo "   - V2RAY Vmess TLS         : 443" | tee -a log-install.txt
+echo "   - V2RAY Vmess None TLS    : 80" | tee -a log-install.txt
+echo "   - V2RAY Vless TLS         : 443" | tee -a log-install.txt
+echo "   - V2RAY Vless None TLS    : 80" | tee -a log-install.txt
+elif [ "$coreselect" = "xray" ]; then
 echo "   - XRAY  Vmess TLS         : 443" | tee -a log-install.txt
 echo "   - XRAY  Vmess None TLS    : 80" | tee -a log-install.txt
 echo "   - XRAY  Vless TLS         : 443" | tee -a log-install.txt
 echo "   - XRAY  Vless None TLS    : 80" | tee -a log-install.txt
-echo "   - Trojan GRPC                 : 443" | tee -a log-install.txt
-echo "   - Trojan WS               : 443" | tee -a log-install.txt
+fi
+
+echo "   - Trojan                  : 8443" | tee -a log-install.txt
+echo "   - Trojan Go               : 2096" | tee -a log-install.txt
 echo "   - Wireguard               : 7070" | tee -a log-install.txt
 echo "   - SSTP VPN                : 444" | tee -a log-install.txt
 echo "   - L2TP/IPSEC VPN          : 1701" | tee -a log-install.txt
 echo "   - PPTP VPN                : 1732" | tee -a log-install.txt
-echo "   - Sodosok WS/GRPC           : 443" | tee -a log-install.txt
 echo "   - SS-OBFS TLS             : 2443-2543" | tee -a log-install.txt
 echo "   - SS-OBFS HTTP            : 3443-3543" | tee -a log-install.txt
 echo "   - Shadowsocks-R           : 1443-1543" | tee -a log-install.txt
@@ -375,7 +367,7 @@ echo ""
 echo ""
 echo "------------------------------------------------------------"
 echo ""
-echo "===============-[ Script Created By ARTAVPS ]-==============="
+echo "===============-[ Script Created By SC-VPS ]-==============="
 echo -e ""
 echo ""
 echo "" | tee -a log-install.txt
